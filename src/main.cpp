@@ -1,7 +1,11 @@
+/* Ilya Pavlov st129535@student.spbu.ru
+	lab-work-1
+*/
 #include "bmp_reader.h"
 #include "func_headers.h"
 
-void printBMPHeaders(BMPFile* bmp_file){
+void printBMPHeaders(BMPFile* bmp_file)
+{
 // Выводим информацию о заголовке BMP
     std::cout << "BMP Header:" << std::endl;
     std::cout << "ID: " << bmp_file->bhdr._id[0] << bmp_file->bhdr._id[1] << std::endl;
@@ -19,31 +23,35 @@ void printBMPHeaders(BMPFile* bmp_file){
     std::cout << "Data size: " << bmp_file->dhdr._data_size << " bytes" << std::endl;
 };
 
-void printpixels(BMPFile* bmp_file){
-    for (unsigned int i = 0; i<bmp_file->dhdr._data_size; ++i){
-    	if (i%12 == 0){
-    	    std::cout<<""<<std::endl;
-    	};
-    	std::cout << std::hex << (static_cast<unsigned int>(static_cast<unsigned char>(bmp_file->_data[i]))) << " ";
+void printpixels(BMPFile* bmp_file)
+{
+    for (unsigned int i = 0; i<bmp_file->dhdr._data_size; ++i)
+    {
+        if (i%12 == 0)
+        {
+            std::cout<<""<<std::endl;
+        };
+        std::cout << std::hex << (static_cast<unsigned int>(static_cast<unsigned char>(bmp_file->_data[i]))) << " ";
     };
 
 };
 
-int main() {
+int main()
+{
     // Указываем имя BMP файла для теста
     std::cout<<"Введите название файла: ";
     std::string bmp_filename;
     std::cin>>bmp_filename;
     // Загружаем BMP файл
     BMPFile* bmp_file = loadBMPFile(bmp_filename);
-    
+
     //printBMPHeaders(bmp_file);
     //printpixels(bmp_file);
-    
-    
+
+
     rotate90(bmp_file);
     rotate270(bmp_file);
-   
+
     // Освобождаем память
     freeBMPFile(bmp_file);
 
