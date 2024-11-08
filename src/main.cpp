@@ -1,8 +1,8 @@
 /* Ilya Pavlov st129535@student.spbu.ru
 	lab-work-1
 */
-#include "bmp_reader.h"
-#include "func_headers.h"
+
+#include "GausBlur.h"
 
 void printBMPHeaders(BMPFile* bmp_file)
 {
@@ -42,16 +42,35 @@ int main()
     std::cout<<"Введите название файла: ";
     std::string bmp_filename;
     std::cin>>bmp_filename;
+    
     // Загружаем BMP файл
     BMPFile* bmp_file = loadBMPFile(bmp_filename);
 
-    //printBMPHeaders(bmp_file);
-    //printpixels(bmp_file);
-
-
-    rotate90(bmp_file);
-    rotate270(bmp_file);
-
+    rotate90("90clock",bmp_file);
+    rotate270("90aclock",bmp_file);
+    
+    std::vector<unsigned int> blue, green,red,alpha;
+    extractChannels(bmp_file, blue,green,red,alpha);
+    
+    std::cout<<"Введите размер ядра: ";
+    int kernel_size;
+    std::cin >> kernel_size;
+    
+    std::cout<<"Введите силу размытия(значение сигмы): ";
+    int input;
+    std::cin >> input;
+    float sigma = static_cast<float>(input);
+    
+    gaussianBlurImage(blue, green, red, alpha, static_cast<int>(bmp_file->dhdr._width), static_cast<int>(bmp_file->dhdr._height), kernel_size, sigma);
+    
+    delete[] bmp_file->_data;
+    bmp_file->_data = mergeChannels(blue,green,red,alpha, static_cast<int>(bmp_file->dhdr._width), static_cast<int>(bmp_file->dhdr._height));
+    
+    saveBMPFile("blurred_image.bmp",bmp_file);
+    
+    rotate90("90clockblur",bmp_file);
+    rotate270("90aclockblur",bmp_file);
+    
     // Освобождаем память
     freeBMPFile(bmp_file);
 

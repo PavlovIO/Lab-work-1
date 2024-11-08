@@ -3,7 +3,7 @@
 */
 #include "func_headers.h"
 
-void rotate90(BMPFile* bmpf)
+void rotate90(const char* fname,BMPFile* bmpf)
 {
 
     BMPFile* bmpf90 = new BMPFile;
@@ -45,11 +45,11 @@ void rotate90(BMPFile* bmpf)
         };
         i90+=padding90;
     };
-    saveBMPFile("rotate90clock.bmp",bmpf90);
+    saveBMPFile(fname,bmpf90);
     freeBMPFile(bmpf90);
 };
 
-void rotate270(BMPFile* bmpf)
+void rotate270(const char* fname,BMPFile* bmpf)
 {
 
     BMPFile* bmpf90 = new BMPFile;
@@ -91,7 +91,7 @@ void rotate270(BMPFile* bmpf)
         };
         i90+=padding90;
     };
-    saveBMPFile("rotate90anticlock.bmp",bmpf90);
+    saveBMPFile(fname,bmpf90);
     freeBMPFile(bmpf90);
 };
 
