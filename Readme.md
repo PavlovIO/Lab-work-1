@@ -5,7 +5,7 @@
 st129535@student.spbu.ru
 ## Description
 Input - bmp file with 24/32 bits per pixel
-Lab-work-1 - open and read bmp file, turn it 90 deg clockwise and anticlokwise
+Lab-work-1 - open and read bmp file, turn it 90 deg clockwise and anticlokwise, apply GaussBlur to the image and to the rotated images 
 ## Build
 make
 ## Run
