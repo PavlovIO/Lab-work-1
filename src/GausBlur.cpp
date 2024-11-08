@@ -1,4 +1,6 @@
-
+/* Ilya Pavlov st129535@student.spbu.ru
+	lab-work-1
+*/
 #include "func_headers.h"
 
 

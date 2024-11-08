@@ -1,4 +1,6 @@
-
+/* Ilya Pavlov st129535@student.spbu.ru
+	lab-work-1
+*/
 #ifndef GAUSBLUR_H
 #define GAUSBLUR_H
 #include "func_headers.h"
