@@ -4,35 +4,30 @@
 #include "bmp_reader.h"
 
 
-BMPFile* loadBMPFile(std::string fname)
+bool BMPFile::loadBMPFile(std::string fname)
 {
     std::ifstream fp(fname, std::ios::binary);
     if (!fp)
     {
         std::cerr<<"Can't load the file"<<std::endl;
-        return nullptr;
+        return false;
     };
 
-    BMPFile* bmp_file = new BMPFile;
     //Читаем бмп хедер
-    fp.read((char*)&bmp_file->bhdr, sizeof(BMPHeader));
-    fp.read((char*)&bmp_file->dhdr, sizeof(DIBHeader));
+    fp.read(reinterpret_cast<char*>(&bhdr), sizeof(bhdr));
+    fp.read(reinterpret_cast<char*>(&dhdr), sizeof(dhdr));
 
-    bmp_file->_data = new char[bmp_file->dhdr._data_size];
-    fp.seekg(bmp_file->bhdr._pixel_offset,std::ios::beg);
-    fp.read(bmp_file->_data, bmp_file->dhdr._data_size);
+    _data = new char[dhdr._data_size];
+    fp.seekg(bhdr._pixel_offset,std::ios::beg);
+    fp.read(_data, dhdr._data_size);
 
     fp.close();
-    return bmp_file;
+    return true;
 };
 
-void freeBMPFile(BMPFile* bmp_file)
+bool BMPFile::freeBMPFile()
 {
-    if (bmp_file)
-    {
-        delete[] bmp_file->_data;
-        delete bmp_file;
-    };
-
+    delete[] _data;
+    return true;
 };
 

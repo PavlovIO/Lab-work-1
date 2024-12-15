@@ -1,7 +1,7 @@
 /* Ilya Pavlov st129535@student.spbu.ru
 	lab-work-1
 */
-#include "func_headers.h"
+#include "GausBlur.h"
 
 
 // Создание гауссова ядра
@@ -64,9 +64,11 @@ void gaussianBlurImage(
     std::vector<unsigned int>& greenChannel,
     std::vector<unsigned int>& redChannel,
     std::vector<unsigned int>& alphaChannel,
-    int width, int height, int kernelSize = 3, float sigma = 1.0f
+    BMPFile& bmp_file, int kernelSize = 7, float sigma = 1.0f
 )
 {
+    int width = static_cast<int>(bmp_file.dhdr._width);
+    int height = static_cast<int>(bmp_file.dhdr._height);
     auto kernel = createGaussianKernel(kernelSize, sigma);
 
     // Создаем выходные векторы
@@ -100,17 +102,16 @@ void gaussianBlurImage(
 }
 
 
-void extractChannels(
-    BMPFile* bmpFile,
+void BMPFile::extractChannels(
     std::vector<unsigned int>& blueChannel,
     std::vector<unsigned int>& greenChannel,
     std::vector<unsigned int>& redChannel,
     std::vector<unsigned int>& alphaChannel // останется пустым, если альфа-канал отсутствует
 )
 {
-    int width = bmpFile->dhdr._width;
-    int height = bmpFile->dhdr._height;
-    int bytesPerPixel = bmpFile->dhdr._bits_per_pixel / 8;
+    int width = dhdr._width;
+    int height = dhdr._height;
+    int bytesPerPixel = dhdr._bits_per_pixel / 8;
     bool hasAlpha = (bytesPerPixel == 4); // Проверка на альфа-канал
 
     // Рассчитываем фактический размер строки, включая паддинг
@@ -134,12 +135,12 @@ void extractChannels(
             int pixelIndex = y * rowSize + x * bytesPerPixel;
 
             // Запись данных о каждом канале, преобразованных в unsigned int
-            blueChannel[y * width + x] = static_cast<unsigned int>(static_cast<unsigned char>(bmpFile->_data[pixelIndex]));
-            greenChannel[y * width + x] = static_cast<unsigned int>(static_cast<unsigned char>(bmpFile->_data[pixelIndex + 1]));
-            redChannel[y * width + x] = static_cast<unsigned int>(static_cast<unsigned char>(bmpFile->_data[pixelIndex + 2]));
+            blueChannel[y * width + x] = static_cast<unsigned int>(static_cast<unsigned char>(_data[pixelIndex]));
+            greenChannel[y * width + x] = static_cast<unsigned int>(static_cast<unsigned char>(_data[pixelIndex + 1]));
+            redChannel[y * width + x] = static_cast<unsigned int>(static_cast<unsigned char>(_data[pixelIndex + 2]));
             if (hasAlpha)
             {
-                alphaChannel[y * width + x] = static_cast<unsigned int>(static_cast<unsigned char>(bmpFile->_data[pixelIndex + 3]));
+                alphaChannel[y * width + x] = static_cast<unsigned int>(static_cast<unsigned char>(_data[pixelIndex + 3]));
             }
         }
     }
@@ -148,14 +149,15 @@ void extractChannels(
 
 
 
-char* mergeChannels(
+void BMPFile::mergeChannels(
     const std::vector<unsigned int>& blueChannel,
     const std::vector<unsigned int>& greenChannel,
     const std::vector<unsigned int>& redChannel,
-    const std::vector<unsigned int>& alphaChannel, // пустой, если альфа отсутствует
-    int width, int height
+    const std::vector<unsigned int>& alphaChannel // пустой, если альфа отсутствует
 )
 {
+    int width = static_cast<int>(dhdr._width);
+    int height = static_cast<int>(dhdr._height);
     int bytesPerPixel = alphaChannel.empty() ? 3 : 4;
     int rowSize = (width * bytesPerPixel + 3) & ~3;  // Размер строки с учетом паддинга
     char* mergedData = new char[rowSize * height];   // Итоговый массив данных с учетом паддинга
@@ -178,7 +180,7 @@ char* mergeChannels(
         }
     }
 
-    return mergedData;
+    _data=mergedData;
 }
 
 
