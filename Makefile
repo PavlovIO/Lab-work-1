@@ -40,8 +40,10 @@ cleanall: clean
 run: $(TARGET)
 	./$(TARGET)
 
-# Указываем зависимости для объектных файлов
+# Format rule
+format:
+	find src/ -name '*.cpp' -exec astyle --options=stylr.astylerc {} \;
 
-.PHONY: all clean cleanall run
+.PHONY: all clean cleanall run format
 
 
