@@ -6,7 +6,7 @@
 #include "bmp_reader.h"
 
 std::vector<std::vector<float>> createGaussianKernel(int size, float sigma);
-void applyGaussianBlur(const std::vector<unsigned int>& inputChannel, std::vector<uint8_t>& outputChannel,
+void applyGaussianBlur(const std::vector<unsigned int>& inputChannel, std::vector<unsigned int>& outputChannel,
                        int width, int height, const std::vector<std::vector<float>>& kernel);
 
 

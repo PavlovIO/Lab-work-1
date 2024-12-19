@@ -53,7 +53,7 @@ void applyGaussianBlur(const std::vector<unsigned int>& inputChannel, std::vecto
             }
 
             // Ограничиваем значение в пределах [0, 255] и сохраняем
-            outputChannel[y * width + x] = static_cast<uint8_t>(std::min(std::max(int(blurredValue), 0), 255));
+            outputChannel[y * width + x] = static_cast<unsigned int>(std::min(std::max(int(blurredValue), 0), 255));
         }
     }
 }
