@@ -15,8 +15,15 @@ bool BMPFile::loadBMPFile(std::string fname)
 
     //Читаем бмп хедер
     fp.read(reinterpret_cast<char*>(&bhdr), sizeof(bhdr));
+    
     fp.read(reinterpret_cast<char*>(&dhdr), sizeof(dhdr));
-
+    
+    unsigned int rdatasize = ((dhdr._width * dhdr._bits_per_pixel + 31) / 32) * 4 * dhdr._height;
+    
+    if (dhdr._data_size != rdatasize){
+        dhdr._data_size = rdatasize;
+    }
+    
     _data = new char[dhdr._data_size];
     fp.seekg(bhdr._pixel_offset,std::ios::beg);
     fp.read(_data, dhdr._data_size);

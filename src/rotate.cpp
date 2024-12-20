@@ -38,6 +38,7 @@ void BMPFile::rotate90(const std::string fname)
             bmpf90._data[i90+1] = _data[(i)-2+(row_size+padding)*(j)];
             bmpf90._data[i90+2] = _data[(i)-1+(row_size+padding)*(j)];
             i90+=3;
+            
         };
         for(unsigned int p = 0; p<padding90; ++p)
         {
@@ -47,8 +48,11 @@ void BMPFile::rotate90(const std::string fname)
     };
     bmpf90.bhdr._file_size = bhdr._file_size-dhdr._data_size+data_size;
     bmpf90.dhdr._data_size = data_size;
+    
     bmpf90.saveBMPFile(fname);
     bmpf90.freeBMPFile();
+    
+    
 };
 
 void BMPFile::rotate270(const std::string fname)

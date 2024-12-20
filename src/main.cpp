@@ -14,6 +14,8 @@ int main()
     // Загружаем BMP файл
     BMPFile bmp_file;
     bmp_file.loadBMPFile(bmp_filename);
+    
+    bmp_file.saveBMPFile("image.bmp");
 
     bmp_file.rotate90("90clock");
     bmp_file.rotate270("90aclock");
