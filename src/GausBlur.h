@@ -8,7 +8,7 @@
 std::vector<std::vector<float>> createGaussianKernel(int size, float sigma);
 void applyGaussianBlur(const std::vector<unsigned int>& inputChannel, std::vector<unsigned int>& outputChannel,
                        int width, int height, const std::vector<std::vector<float>>& kernel);
-
+void applyGaussianBlurParallel(const std::vector<unsigned int>& inputChannel, std::vector<unsigned int>& outputChannel, int width, int height, const std::vector<std::vector<float>>& kernel, int startY, int endY);
 
 
 #endif

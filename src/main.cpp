@@ -4,48 +4,60 @@
 
 #include "GausBlur.h"
 
-int main()
+int main( int argc, char* argv[])
 {
-    // Указываем имя BMP файла для теста
-    std::cout<<"Введите название файла: ";
-    std::string bmp_filename;
-    std::cin>>bmp_filename;
-
-    // Загружаем BMP файл
-    BMPFile bmp_file;
-    bmp_file.loadBMPFile(bmp_filename);
+    if(argc < 4)
+    {
+        std::cout<<"Usage: ./output <file_name> <int(kernel size)> <float(sigma)>"<<std::endl;
+        return 0;
+    }
     
-    bmp_file.saveBMPFile("image.bmp");
+    std::string bmp_filename = argv[1];
+    std::string kernel_input = argv[2];
+    std::string sigma_input = argv[3];
+    try
+    {
+        int kernel_size = std::stof(kernel_input);
+        float sigma = std::stof(sigma_input);
 
-    bmp_file.rotate90("90clock");
-    bmp_file.rotate270("90aclock");
+        // Загружаем BMP файл
+        BMPFile bmp_file;
+        bmp_file.loadBMPFile(bmp_filename);
 
-    std::vector<unsigned int> blue, green,red,alpha;
-    bmp_file.extractChannels(blue,green,red,alpha);
+        bmp_file.saveBMPFile("image.bmp");
 
-    std::cout<<"Введите размер ядра(нечетное значение): ";
-    int kernel_size;
-    std::cin >> kernel_size;
+        bmp_file.rotate90("90clock");
+        bmp_file.rotate270("90aclock");
 
-    std::cout<<"Введите силу размытия(значение сигмы): ";
-    int input;
-    std::cin >> input;
-    float sigma = static_cast<float>(input);
+        std::vector<unsigned int> blue, green,red,alpha;
+        bmp_file.extractChannels(blue,green,red,alpha);
 
-    gaussianBlurImage(blue, green, red, alpha, bmp_file, kernel_size, sigma);
 
-    bmp_file.freeBMPFile();
-    bmp_file.mergeChannels(blue,green,red,alpha);///
+        gaussianBlurImage(blue, green, red, alpha, bmp_file, kernel_size, sigma);
 
-    bmp_file.saveBMPFile("blurred_image.bmp");
+        bmp_file.freeBMPFile();
+        bmp_file.mergeChannels(blue,green,red,alpha);///
 
-    bmp_file.rotate90("90clockblur");
-    bmp_file.rotate270("90aclockblur");
+        bmp_file.saveBMPFile("blurred_image.bmp");
 
-    // Освобождаем память
-    bmp_file.freeBMPFile();
+        bmp_file.rotate90("90clockblur");
+        bmp_file.rotate270("90aclockblur");
 
-    return 0;
+        // Освобождаем память
+        bmp_file.freeBMPFile();
+
+        return 0;
+    }
+    catch(const std::invalid_argument& e)
+    {
+        std::cerr << "Invalid kernel_size(int) and sigma(float) arguments" << std::endl;
+        return 1;
+    }
+    catch(...)
+    {
+        std::cerr << "Unidentified error" << std::endl;
+        return 1;
+    }
 }
 
 

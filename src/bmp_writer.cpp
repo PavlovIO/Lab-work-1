@@ -19,9 +19,9 @@ bool BMPFile::saveBMPFile(const std::string fname)
     fp.write(reinterpret_cast<char*>(&dhdr), sizeof(DIBHeader));
 
     // Данные пикселей
-    
+
     unsigned int bypp = dhdr._bits_per_pixel/8;
-    
+
     unsigned int row_size = dhdr._width * bypp;  // Размер строки без паддинга
     unsigned int padding = (4 - row_size % 4) % 4;  // Паддинг, чтобы строка была кратна 4
 

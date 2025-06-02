@@ -15,6 +15,8 @@ public:
     bool saveBMPFile(const std::string fname);
     void rotate90(const std::string fname);
     void rotate270(const std::string fname);
+    void rotate90Parallel(const std::string fname);// parallel rotate90
+    void rotate270Parallel(const std::string fname);// parallel rotate270
     
     void extractChannels(
         std::vector<unsigned int>& blueChannel,
@@ -30,6 +32,12 @@ public:
     );
 
     friend void gaussianBlurImage(
+        std::vector<unsigned int>& blueChannel,
+        std::vector<unsigned int>& greenChannel,
+        std::vector<unsigned int>& redChannel,
+        std::vector<unsigned int>& alphaChannel,  BMPFile& bmp_file, int kernelSize , float sigma
+    );  
+    friend void gaussianBlurImageParallel(
         std::vector<unsigned int>& blueChannel,
         std::vector<unsigned int>& greenChannel,
         std::vector<unsigned int>& redChannel,

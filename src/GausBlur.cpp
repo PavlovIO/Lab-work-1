@@ -3,7 +3,6 @@
 */
 #include "GausBlur.h"
 
-
 // Создание гауссова ядра
 std::vector<std::vector<float>> createGaussianKernel(int size, float sigma)
 {
@@ -29,9 +28,9 @@ std::vector<std::vector<float>> createGaussianKernel(int size, float sigma)
     return kernel;
 }
 
+//initial version
 // Применение гауссова размытия к каналу
-void applyGaussianBlur(const std::vector<unsigned int>& inputChannel, std::vector<unsigned int>& outputChannel,
-                       int width, int height, const std::vector<std::vector<float>>& kernel)
+void applyGaussianBlur(const std::vector<unsigned int>& inputChannel, std::vector<unsigned int>& outputChannel, int width, int height, const std::vector<std::vector<float>>& kernel)
 {
     int half = kernel.size() / 2;
 
@@ -58,7 +57,38 @@ void applyGaussianBlur(const std::vector<unsigned int>& inputChannel, std::vecto
     }
 }
 
+// chunk vesion
+void applyGaussianBlurParallel(const std::vector<unsigned int>& inputChannel, std::vector<unsigned int>& outputChannel, int width, int height, const std::vector<std::vector<float>>& kernel, int startY, int endY)
+{
+    int half = kernel.size() / 2;
+
+    // loop from startY till endY to support division by chunks
+    for (int y = startY; y < endY; ++y)
+    {
+        for (int x = 0; x < width; ++x)
+        {
+            float blurredValue = 0.0;
+
+            // Применяем ядро к пикселю и его соседям
+            for (int ky = -half; ky <= half; ++ky)
+            {
+                for (int kx = -half; kx <= half; ++kx)
+                {
+                    int nx = std::min(std::max(x + kx, 0), width - 1);   // Граничное ограничение по X
+                    int ny = std::min(std::max(y + ky, 0), height - 1);  // Граничное ограничение по Y
+                    blurredValue += inputChannel[ny * width + nx] * kernel[ky + half][kx + half];
+                }
+            }
+
+            // Ограничиваем значение в пределах [0, 255] и сохраняем
+            outputChannel[y * width + x] = static_cast<unsigned int>(std::min(std::max(int(blurredValue), 0), 255));
+        }
+    }
+}
+
 // Основная функция для размытия всех каналов изображения
+
+//initial version
 void gaussianBlurImage(
     std::vector<unsigned int>& blueChannel,
     std::vector<unsigned int>& greenChannel,
@@ -100,6 +130,75 @@ void gaussianBlurImage(
         alphaChannel = blurredAlpha;
     }
 }
+
+// parallel version
+void gaussianBlurImageParallel(
+    std::vector<unsigned int>& blueChannel,
+    std::vector<unsigned int>& greenChannel,
+    std::vector<unsigned int>& redChannel,
+    std::vector<unsigned int>& alphaChannel,
+    BMPFile& bmp_file, int kernelSize = 7, float sigma = 1.0f
+)
+{
+    int width = static_cast<int>(bmp_file.dhdr._width);
+    int height = static_cast<int>(bmp_file.dhdr._height);
+    auto kernel = createGaussianKernel(kernelSize, sigma);
+
+    // Создаем выходные векторы
+    std::vector<unsigned int> blurredBlue(width * height);
+    std::vector<unsigned int> blurredGreen(width * height);
+    std::vector<unsigned int> blurredRed(width * height);
+    std::vector<unsigned int> blurredAlpha;
+
+    if (!alphaChannel.empty())
+    {
+        blurredAlpha.resize(width * height);
+    }
+
+    // Применяем гауссово размытие к каждому каналу параллельно
+    //added paralleling
+    //initialized chunk_sizes for threads and vector of threads
+    unsigned int num_threads = std::thread::hardware_concurrency();
+    unsigned int chunk_size = height / num_threads;
+    std::vector<std::thread> threads;
+
+    for(unsigned int t = 0; t < num_threads; ++t)
+    {
+        //added support for smaller chunks (start end)
+
+        unsigned int startY = t * chunk_size;
+        unsigned int endY = ( t == num_threads - 1 ) ? height : startY + chunk_size;
+
+        threads.emplace_back(applyGaussianBlurParallel, std::ref(blueChannel), std::ref(blurredBlue), width, height, std::ref(kernel), startY, endY);
+
+        threads.emplace_back(applyGaussianBlurParallel, std::ref(greenChannel), std::ref(blurredGreen), width, height, std::ref(kernel), startY, endY);
+
+        threads.emplace_back(applyGaussianBlurParallel, std::ref(redChannel), std::ref(blurredRed), width, height, std::ref(kernel), startY, endY);
+
+        if (!alphaChannel.empty())
+        {
+            threads.emplace_back(applyGaussianBlurParallel, std::ref(alphaChannel), std::ref(blurredAlpha), width, height, std::ref(kernel), startY, endY);
+        }
+    }
+
+    // joining
+
+    for(auto& thread : threads)
+    {
+        thread.join();
+    }
+
+    // Обновляем оригинальные каналы с размытыми данными
+    blueChannel = blurredBlue;
+    greenChannel = blurredGreen;
+    redChannel = blurredRed;
+    if (!alphaChannel.empty())
+    {
+        alphaChannel = blurredAlpha;
+    }
+}
+
+
 
 
 void BMPFile::extractChannels(
