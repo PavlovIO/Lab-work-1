@@ -1,10 +1,12 @@
-name: SkipListSTL
+name: GaussBlur and rotation
 
 on:
   push:
-    branches: [ "main" ]
+    - main
+    - master
   pull_request:
-    branches: [ "main" ]
+    - main
+    - master
 
 jobs:
   build:
