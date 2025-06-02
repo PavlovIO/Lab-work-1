@@ -2,11 +2,14 @@ name: GaussBlur and rotation
 
 on:
   push:
-    - main
-    - master
+    branch:
+        - main
+        - master
   pull_request:
-    - main
-    - master
+    branch:
+        - main
+        - master
+
 
 jobs:
   build:
