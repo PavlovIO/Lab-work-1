@@ -15,6 +15,7 @@ int main( int argc, char* argv[])
     std::string bmp_filename = argv[1];
     std::string kernel_input = argv[2];
     std::string sigma_input = argv[3];
+
     try
     {
         int kernel_size = std::stof(kernel_input);
@@ -32,16 +33,15 @@ int main( int argc, char* argv[])
         std::vector<unsigned int> blue, green,red,alpha;
         bmp_file.extractChannels(blue,green,red,alpha);
 
-
-        gaussianBlurImage(blue, green, red, alpha, bmp_file, kernel_size, sigma);
+        gaussianBlurImageParallel(blue, green, red, alpha, bmp_file, kernel_size, sigma);
 
         bmp_file.freeBMPFile();
         bmp_file.mergeChannels(blue,green,red,alpha);///
 
         bmp_file.saveBMPFile("blurred_image.bmp");
 
-        bmp_file.rotate90("90clockblur");
-        bmp_file.rotate270("90aclockblur");
+        bmp_file.rotate90Parallel("90clockblur");
+        bmp_file.rotate270Parallel("90aclockblur");
 
         // Освобождаем память
         bmp_file.freeBMPFile();
